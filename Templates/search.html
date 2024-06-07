@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Products</title>
+</head>
+<body>
+    <h1>Search Products</h1>
+    <form id="searchForm">
+        <label for="query">Search:</label>
+        <input type="text" id="query" name="query">
+        <br>
+        <label for="price">Price Range:</label>
+        <select id="price" name="price">
+            <option value="">Select a price range</option>
+            <option value="0-5000">Under $5,000</option>
+            <option value="5000-10000">$5,000 - $10,000</option>
+            <option value="10000-15000">$10,000 - $15,000</option>
+            <option value="15000-20000">$15,000 - $20,000</option>
+            <option value="20000-30000">$20,000 - $30,000</option>
+            <option value="30000-40000">$30,000 - $40,000</option>
+            <option value="40000-50000">$40,000 - $50,000</option>
+            <option value="50000">Above $50,000</option>
+        </select>
+        <br>
+        <button type="submit">Search</button>
+    </form>
+    <a href="/view-sales"><button>View Sales</button></a>
+
+    <h2>Results:</h2>
+    <ul id="results"></ul>
+
+    <script>
+        function fetchSearchResults(query, price) {
+            fetch(`/search?query=${encodeURIComponent(query)}&price=${encodeURIComponent(price)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsElement = document.getElementById('results');
+                    resultsElement.innerHTML = '';
+    
+                    data.forEach(product => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            Manufacturer: ${product.manufacturer}, 
+                            Model: ${product.model}, 
+                            Price: $${product.price}, 
+                            Year: ${product.year}, 
+                            Fuel: ${product.fuel}, 
+                            Odometer: ${product.odometer} miles,
+                            Transmission: ${product.transmission},
+                            VIN: ${product.VIN},
+                            Type: ${product.type},
+                            Paint Color: ${product.paint_color},
+                            State: ${product.state},
+                            Posting Date: ${product.posting_date},
+                            Status: ${product.status}
+                            <a href="/car/${product.id}">View Details</a>
+                        `;
+                        if (product.status === 'AVAILABLE') {
+                            li.innerHTML += `<button onclick="buyProduct(${product.id})">Buy</button>`;
+                        } else if (product.status === 'SOLD') {
+                            li.innerHTML += `<div>Unavailable</div>`; /* depending on availability it'll either have a "Buy" button or be unavilable */
+                        }
+                        resultsElement.appendChild(li);
+                    });
+                })
+                .catch(error => console.error('Error fetching search results:', error));
+        }
+    
+        document.getElementById('searchForm').onsubmit = function(event) {
+            event.preventDefault();
+    
+            const query = document.getElementById('query').value;
+            const price = document.getElementById('price').value;
+    
+            //store in local to enable the last search to be displayed when the page is reloaded
+            localStorage.setItem('lastQuery', query);
+            localStorage.setItem('lastPrice', price);
+    
+            fetchSearchResults(query, price);
+        };
+    
+        //when page loads check if there is a last query and price and then use those if there are
+        window.onload = function() {
+            const lastQuery = localStorage.getItem('lastQuery');
+            const lastPrice = localStorage.getItem('lastPrice');
+    
+            if (lastQuery !== null || lastPrice !== null) {
+                document.getElementById('query').value = lastQuery;
+                document.getElementById('price').value = lastPrice;
+                fetchSearchResults(lastQuery, lastPrice);
+            }
+        };
+    
+        function buyProduct(id) {
+            fetch(`/buy/${id}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.querySelector(`button[onclick="buyProduct(${id})"]`).parentElement.innerHTML += ' - SOLD';
+                    document.querySelector(`button[onclick="buyProduct(${id})"]`).outerHTML = `<button onclick="deleteProduct(${id})">Delete</button>`;
+                }
+            });
+        }
+    
+        function deleteProduct(id) {
+            fetch(`/delete/${id}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.querySelector(`button[onclick="deleteProduct(${id})"]`).parentElement.remove();
+                }
+            });
+        }
+    </script>
+    
+</body>
+</html>

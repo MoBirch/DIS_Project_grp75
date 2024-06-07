@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Details</title>
+    <script>
+        function deleteCar(carId) {
+            fetch(`/delete/${carId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Remove the car's list item from the DOM
+                    document.getElementById(`car-${carId}`).remove();
+                } else {
+                    alert('Failed to delete the car: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error deleting the car:', error));
+        }
+    </script>
+</head>
+<body>
+    <a href="/" style="text-decoration: none;"><button>Back to Search Results</button></a>
+    <h1>Sales Details</h1>
+    <ul id="salesList">
+        {% for car in sales %}
+        <li id="car-{{ car.id }}">
+            Manufacturer: {{ car.manufacturer }}, Model: {{ car.model }}, Price: ${{ car.price }},
+            Year: {{ car.year }}, Buyer ID: {{ car.buyer_id }}
+            <button onclick="deleteCar({{ car.id }})">Delete Record</button>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

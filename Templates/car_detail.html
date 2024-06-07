@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ car.model }}</title>
+    <style>
+        .financing-offer {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .financing-offer h3 {
+            color: #333;
+        }
+        select {
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>{{ car.manufacturer }} {{ car.model }} - {{ car.year }}</h1>
+    <ul>
+        <li>Price: {{ car.price }}</li>
+        <li>Odometer: {{ car.odometer }} miles</li>
+        <li>Fuel Type: {{ car.fuel }}</li>
+        <li>Transmission: {{ car.transmission }}</li>
+        <li>VIN: {{ car.VIN }}</li>
+        <li>Type: {{ car.type }}</li>
+        <li>Paint Color: {{ car.paint_color }}</li>
+        <li>Description: {{ car.description }}</li>
+        <li>Posted On: {{ car.posting_date }}</li>
+    </ul>
+    <a href="/" style="text-decoration: none;"><button>Back to Search Results</button></a>
+    <!-- Shows a financing offer based on car price -->
+    <div class="financing-offer">
+        <h3>Financing Offer 5.9% APR</h3>
+        <p><strong>Bank of Vehicles</strong></p>
+        <p>Downpayment: <span id="downpayment"></span></p> 
+        <p>Finance Amount: <span id="financeAmount"></span></p>
+        <label for="term">Choose a repayment term:</label>
+        <select id="term" onchange="calculateMonthlyPayment()"> <!-- Down drop to choose how long the repayment should be -->
+            <option value="12">12 months</option>
+            <option value="24">24 months</option>
+            <option value="36">36 months</option>
+        </select>
+        <p>Monthly Payment: <strong>$<span id="monthlyPayment"></span> per month</strong></p>
+    </div>
+    
+    <script>
+       /*  Some basic aritmatic to calculate offer */
+        function setupFinancing() {
+            const carPrice = {{ car.price }};
+            const downpayment = carPrice * 0.1;
+            const financeAmount = carPrice - downpayment;
+    
+            document.getElementById('downpayment').innerText = `$${downpayment.toFixed(2)}`;
+            document.getElementById('financeAmount').innerText = `$${financeAmount.toFixed(2)}`;
+    
+            calculateMonthlyPayment(); 
+        }
+    
+        function calculateMonthlyPayment() {
+            const financeAmount = {{ car.price }} - ({{ car.price }} * 0.1); /* 10% downpayment */
+            const term = document.getElementById('term').value;
+            const interestRate = 0.059; /* 5.9% APR */
+            const monthlyInterestRate = interestRate / 12;
+            const monthlyPayment = financeAmount * (monthlyInterestRate / (1 - Math.pow(1 + monthlyInterestRate, -term)));
+    
+            document.getElementById('monthlyPayment').innerText = monthlyPayment.toFixed(2);
+        }
+    
+        window.onload = setupFinancing;
+    </script>
+</body>
+
+
+</html>
