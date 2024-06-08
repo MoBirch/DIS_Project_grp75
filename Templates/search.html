@@ -101,22 +101,10 @@
             .then(data => {
                 if (data.status === 'success') {
                     document.querySelector(`button[onclick="buyProduct(${id})"]`).parentElement.innerHTML += ' - SOLD';
-                    document.querySelector(`button[onclick="buyProduct(${id})"]`).outerHTML = `<button onclick="deleteProduct(${id})">Delete</button>`;
                 }
             });
         }
-    
-        function deleteProduct(id) {
-            fetch(`/delete/${id}`, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    document.querySelector(`button[onclick="deleteProduct(${id})"]`).parentElement.remove();
-                }
-            });
-        }
+
     </script>
     
 </body>
