@@ -2,8 +2,8 @@ import sqlite3
 import pandas as pd
 
 # Load the CSV files into DataFrames using relative paths
-df_cars = pd.read_csv(r"project\cars.csv")
-df_sellers = pd.read_csv(r"project\sellers.csv")  
+df_cars = pd.read_csv('cars.csv')
+df_sellers = pd.read_csv('sellers.csv')  
 
 # Fill missing values for cars
 df_cars['price'] = df_cars['price'].fillna(0)
